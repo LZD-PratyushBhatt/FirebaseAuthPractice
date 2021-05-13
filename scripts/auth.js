@@ -1,16 +1,23 @@
-//------------------------GET DATA FROM FIRESTORE------------------------------------------
-db.collection("guides")
-  .get()
-  .then((snapshot) => {
-    // console.log(snapshot.docs);
-    // Calling setupGuides function in index.js
-    setupGuides(snapshot.docs);
-  });
-
 // ----------------------LISTEN FOR AUTH STATUS CHANGES------------------------
 auth.onAuthStateChanged((user) => {
-  if (user) console.log("User logged in ", user);
-  else console.log("User logged out..");
+  // User is null if not logged n, else it is an object
+  if (user) {
+    // User logged in
+    console.log("user logged in");
+    //------------------------GET DATA FROM FIRESTORE------------------------------------------
+    db.collection("guides")
+      .get()
+      .then((snapshot) => {
+        // console.log(snapshot.docs);
+        // Calling setupGuides function in index.js
+        // console.log("Snapshot docs "+snapshot.docs);
+        // Snapshot.docs is an array of objects(documents) inside that collection
+        setupGuides(snapshot.docs,user);
+      });
+  } else {
+    console.log("User logged out..");
+    setupGuides([], user);
+  }
 });
 
 //   ---------------------SIGN UP USER------------------------------------
