@@ -9,6 +9,28 @@ document.addEventListener("DOMContentLoaded", function () {
   M.Collapsible.init(items);
 });
 
+// SETTING UP THE UI
+const loggedOutLinks = document.querySelectorAll(".logged-out");
+const loggedInLinks = document.querySelectorAll(".logged-in");
+const accountDetails = document.querySelector(".account-details");
+const setupUI = (user) => {
+  if (user) {
+    // Account info
+    const html = `
+<div> Logged in as ${user.email}</div>`;
+accountDetails.innerHTML  = html;
+    // Toggle UI elements (LOGGED IN)
+    loggedInLinks.forEach((link) => (link.style.display = "block"));
+    loggedOutLinks.forEach((link) => (link.style.display = "none"));
+  } else {
+    // hide account info
+    accountDetails.innerHTML="";
+    //   Toggle UI elements (LOGGED OUT)
+    loggedOutLinks.forEach((link) => (link.style.display = "block"));
+    loggedInLinks.forEach((link) => (link.style.display = "none"));
+  }
+};
+
 // ------------APPENDING GUIDES FROM THE FIRESTORE------------------------
 const guideList = document.getElementsByClassName("guides");
 
@@ -16,7 +38,7 @@ const guideList = document.getElementsByClassName("guides");
 const setupGuides = (data, user) => {
   //  if the user object is null, it measn we are logged out, and we should not show the guides
   // else we show the guides
-//   console.log(user);
+  //   console.log(user);
   if (user) {
     let html = "";
     //   (OPTIONAL) putting a condition for the case when the user is logged in but there is no data in the database

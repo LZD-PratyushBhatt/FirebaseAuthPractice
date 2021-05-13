@@ -1,19 +1,27 @@
 // ----------------------LISTEN FOR AUTH STATUS CHANGES------------------------
 auth.onAuthStateChanged((user) => {
   // User is null if not logged n, else it is an object
+  setupUI(user);
+
+  let unsubscribe = () => {};
   if (user) {
     // User logged in
     console.log("user logged in");
     //------------------------GET DATA FROM FIRESTORE------------------------------------------
-    db.collection("guides")
-      .get()
-      .then((snapshot) => {
-        // console.log(snapshot.docs);
-        // Calling setupGuides function in index.js
-        // console.log("Snapshot docs "+snapshot.docs);
-        // Snapshot.docs is an array of objects(documents) inside that collection
-        setupGuides(snapshot.docs,user);
-      });
+
+    // realtime update
+    // replace .get().then() by .onSnapshot(), it always checks and compares the DOM with previous Snapshot
+    // and if any change then it fires the method or anything inside it
+    db.collection("guides").onSnapshot((snapshot) => {
+      // console.log(snapshot.docs);
+      // Calling setupGuides function in index.js
+      // console.log("Snapshot docs "+snapshot.docs);
+      // Snapshot.docs is an array of objects(documents) inside that collection
+      setupGuides(snapshot.docs, user);
+    },function(error){
+      // console.log(error);
+      // Catch the error, do nothing here, we dont want to display anything.
+    });
   } else {
     console.log("User logged out..");
     setupGuides([], user);
@@ -70,5 +78,26 @@ loginform.addEventListener("submit", (e) => {
     })
     .catch((err) => {
       console.log("User Not signed up ", err.message);
+    });
+});
+
+//---------------------CREATE NEW GUIDE------------------------------------
+const createForm = document.querySelector("#create-form");
+createForm.addEventListener("submit", (e) => {
+  e.preventDefault(); //Prevent Refreshing
+
+  db.collection("guides")
+    .add({
+      title: createForm["title"].value,
+      content: createForm["content"].value,
+    })
+    .then(() => {
+      // CLose the Modal and reset form
+      const modal = document.querySelector("#modal-create");
+      M.Modal.getInstance(modal).close();
+      createForm.reset();
+    })
+    .catch((err) => {
+      console.log(err.message);
     });
 });
